@@ -1,14 +1,68 @@
 from typing import Optional
 import logging
-from rich.console import Console
-from string import Formatter
-
 import json
+from string import Formatter
+from rich.console import Console
+from rich.console import Group
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
 from pydantic import BaseModel
-
-from proscenium.verbs.complete import complete_simple
+from aisuite import Client
 
 log = logging.getLogger(__name__)
+
+provider_configs = {
+    # TODO expose this
+    "ollama": {"timeout": 180},
+}
+
+client = Client(provider_configs=provider_configs)
+
+
+def complete_simple(
+    model_id: str, system_prompt: str, user_prompt: str, **kwargs
+) -> str:
+
+    console = kwargs.pop("console", None)
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
+    ]
+
+    if console is not None:
+
+        kwargs_text = "\n".join([str(k) + ": " + str(v) for k, v in kwargs.items()])
+
+        params_text = Text(
+            f"""
+model_id: {model_id}
+{kwargs_text}
+    """
+        )
+
+        messages_table = Table(title="Messages", show_lines=True)
+        messages_table.add_column("Role", justify="left")
+        messages_table.add_column("Content", justify="left")  # style="green"
+        for message in messages:
+            messages_table.add_row(message["role"], message["content"])
+
+        call_panel = Panel(
+            Group(params_text, messages_table), title="complete_simple call"
+        )
+        console.print(call_panel)
+
+    response = client.chat.completions.create(
+        model=model_id, messages=messages, **kwargs
+    )
+    response = response.choices[0].message.content
+
+    if console is not None:
+        console.print(Panel(response, title="Response"))
+
+    return response
+
 
 extraction_system_prompt = "You are an entity extractor"
 

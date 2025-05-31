@@ -54,6 +54,32 @@ def extract_from_document_chunks(
     return extract_models
 
 
+def make_extract_from_document_chunks(
+    doc_as_rich: Callable[[Document], Panel],
+    chunk_extraction_model_id: str,
+    chunk_extraction_template: str,
+    chunk_extract_clazz: type[BaseModel],
+    delay: float = 1.0,  # intra-chunk delay between inference calls
+    console: Optional[Console] = None,
+) -> Callable[[Document, bool], List[BaseModel]]:
+
+    def fn(doc: Document) -> List[BaseModel]:
+
+        chunk_extract_models = extract_from_document_chunks(
+            doc,
+            doc_as_rich,
+            chunk_extraction_model_id,
+            chunk_extraction_template,
+            chunk_extract_clazz,
+            delay,
+            console=console,
+        )
+
+        return chunk_extract_models
+
+    return fn
+
+
 def enrich_documents(
     retrieve_documents: Callable[[], List[Document]],
     extract_from_doc_chunks: Callable[[Document], List[BaseModel]],
