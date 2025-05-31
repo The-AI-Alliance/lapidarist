@@ -1,12 +1,15 @@
 from typing import Optional
+from typing import Callable
+from typing import List
 import logging
-from rich.console import Console
-from string import Formatter
-
 import json
+from string import Formatter
+from rich.console import Console
+from rich.panel import Panel
 from pydantic import BaseModel
+from langchain_core.documents.base import Document
 
-from proscenium.verbs.complete import complete_simple
+from lapidarist.patterns.document_enricher import extract_from_document_chunks
 
 log = logging.getLogger(__name__)
 
@@ -63,3 +66,29 @@ def extract_to_pydantic_model(
         log.error("complete_to_pydantic_model: Exception: %s", e)
 
     return None
+
+
+def make_extract_from_document_chunks(
+    doc_as_rich: Callable[[Document], Panel],
+    chunk_extraction_model_id: str,
+    chunk_extraction_template: str,
+    chunk_extract_clazz: type[BaseModel],
+    delay: float = 1.0,  # intra-chunk delay between inference calls
+    console: Optional[Console] = None,
+) -> Callable[[Document, bool], List[BaseModel]]:
+
+    def extract_from_doc_chunks(doc: Document) -> List[BaseModel]:
+
+        chunk_extract_models = extract_from_document_chunks(
+            doc,
+            doc_as_rich,
+            chunk_extraction_model_id,
+            chunk_extraction_template,
+            chunk_extract_clazz,
+            delay,
+            console=console,
+        )
+
+        return chunk_extract_models
+
+    return extract_from_doc_chunks
