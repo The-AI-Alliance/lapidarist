@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lapidarist"
-version = "0.0.3"
-description = "Extract and Resolve for AI Systems"
+version = "0.0.4"
+description = "Extract and Resolve Knowledge for AI Systems"
 authors = [{ name = "Adam Pingel", email = "oss@pingel.org" }]
 license = "Apache-2.0"
 readme = "README.md"
