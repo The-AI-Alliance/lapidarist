@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from rich.console import Console
 from langchain_core.documents import Document
 from rich.panel import Panel
@@ -43,6 +44,10 @@ class TestDocumentChunkExtractions(BaseModel):
         description="A list of the geographic locations in the text. For example: ['New Hampshire', 'Portland, Maine', 'Elm Street']"
     )
 
+    movie_titles: list[str] = Field(
+        description="A list of the movie titles mentioned in the text. For example: ['Jaws', 'Fletch Lives', 'Rocky IV']"
+    )
+
 
 chunk_extraction_template = partial_formatter.format(
     raw_extraction_template, extraction_description=TestDocumentChunkExtractions.__doc__
@@ -57,11 +62,15 @@ class TestDocumentEnrichments(BaseModel):
     __test__ = False
 
     # Fields that come directly from the document metadata
-    label: str = Field(description="document label")
+    label: int = Field(description="document label")
 
     # Extracted from the text with LLM
     georefs: list[str] = Field(
         description="A list of the geographic locations mentioned in the text. For example: ['New Hampshire', 'Portland, Maine', 'Elm Street']"
+    )
+
+    movierefs: list[str] = Field(
+        description="A list of the movie titles mentioned in the text. For example: ['Jaws', 'Fletch Lives', 'Rocky IV']"
     )
 
     # Written by Lapidarist
@@ -75,15 +84,21 @@ def doc_enrichments(
 
     # merge information from all chunks
     georefs = []
+    movierefs = []
     for chunk_extract in chunk_extracts:
         if chunk_extract.__dict__.get("geographic_locations") is not None:
             georefs.extend(chunk_extract.geographic_locations)
+        if chunk_extract.__dict__.get("movie_titles") is not None:
+            movierefs.extend(chunk_extract.movie_titles)
 
     logging.info(doc.metadata)
+
+    print("MAKING ENRICHMENTS", georefs, movierefs)
 
     enrichments = TestDocumentEnrichments(
         label=doc.metadata["label"],
         georefs=georefs,
+        movierefs=movierefs,
         hf_dataset_id=doc.metadata["hf_dataset_id"],
         hf_dataset_index=int(doc.metadata["hf_dataset_index"]),
     )
@@ -122,3 +137,7 @@ def test_enrich():
         json_enrichment_file,
         console=console,
     )
+
+    assert Path(
+        json_enrichment_file
+    ).exists(), f"Expected the enrichment file {json_enrichment_file} to be created."
