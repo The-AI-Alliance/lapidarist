@@ -3,12 +3,12 @@ import logging
 from rich.console import Console
 from pymilvus import model
 
-from lapidarist.verbs.read import load_file
-from lapidarist.verbs.chunk import documents_to_chunks_by_characters
-from lapidarist.verbs.display.milvus import collection_panel
-from lapidarist.verbs.vector_database import vector_db
-from lapidarist.verbs.vector_database import create_collection
-from lapidarist.verbs.vector_database import add_chunks_to_vector_db
+from lapidarist.read import load_file
+from lapidarist.chunk import documents_to_chunks_by_characters
+from lapidarist.display.milvus import collection_panel
+from lapidarist.vector_database import vector_db
+from lapidarist.vector_database import create_collection
+from lapidarist.vector_database import add_chunks_to_vector_db
 
 log = logging.getLogger(__name__)
 

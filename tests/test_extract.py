@@ -10,11 +10,11 @@ from llama_api_client import LlamaAPIClient
 from pydantic import BaseModel, Field
 
 
-from lapidarist.verbs.read import retrieve_documents
-from lapidarist.verbs.extract import raw_extraction_template
-from lapidarist.verbs.extract import partial_formatter
-from lapidarist.patterns.document_enricher import enrich_document
-from lapidarist.patterns.document_enricher import make_extract_from_document_chunks
+from lapidarist.read import retrieve_documents
+from lapidarist.extract import raw_extraction_template
+from lapidarist.extract import partial_formatter
+from lapidarist.document_enricher import enrich_document
+from lapidarist.document_enricher import make_extract_from_document_chunks
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -24,7 +24,7 @@ console = Console()
 
 hf_dataset_ids = ["stanfordnlp/imdb"]
 hf_dataset_column = "text"
-docs_per_dataset = 10
+docs_per_dataset = 5
 json_enrichment_file = "test-enrichments.json"
 
 aisuite_client = AISuiteClient(

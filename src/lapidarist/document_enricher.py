@@ -12,8 +12,8 @@ from rich.console import Console
 
 from langchain_core.documents.base import Document
 
-from lapidarist.verbs.chunk import documents_to_chunks_by_tokens
-from lapidarist.verbs.extract import extract_to_pydantic_model
+from lapidarist.chunk import documents_to_chunks_by_tokens
+from lapidarist.extract import extract_to_pydantic_model
 
 log = logging.getLogger(__name__)
 

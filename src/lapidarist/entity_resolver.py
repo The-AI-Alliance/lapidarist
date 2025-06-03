@@ -7,12 +7,12 @@ from neo4j import Driver
 
 from pymilvus import MilvusClient
 
-from lapidarist.verbs.vector_database import vector_db
-from lapidarist.verbs.vector_database import create_collection
-from lapidarist.verbs.vector_database import closest_chunks
-from lapidarist.verbs.vector_database import add_chunks_to_vector_db
-from lapidarist.verbs.vector_database import embedding_function
-from lapidarist.verbs.display.milvus import collection_panel
+from lapidarist.vector_database import vector_db
+from lapidarist.vector_database import create_collection
+from lapidarist.vector_database import closest_chunks
+from lapidarist.vector_database import add_chunks_to_vector_db
+from lapidarist.vector_database import embedding_function
+from lapidarist.display.milvus import collection_panel
 
 log = logging.getLogger(__name__)
 
