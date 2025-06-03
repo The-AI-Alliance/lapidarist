@@ -46,15 +46,29 @@ model_id: {model_id}
         )
         console.print(call_panel)
 
-    response = client.chat.completions.create(
-        model=model_id, messages=messages, **kwargs
-    )
-    response = response.choices[0].message.content
+    response_text = ""
+    if model_id.startswith("llama:"):
+        # Llama API Client expects model_id without prefix
+        model_id = model_id.replace("llama:", "")
+        response = client.chat.completions.create(
+            model=model_id, messages=messages, **kwargs
+        )
+        response_text = response.completion_message.content.text
+    else:
+        response = client.chat.completions.create(
+            model=model_id, messages=messages, **kwargs
+        )
+        response_text = response.choices[0].message.content
+
+    #    response = client.chat.completions.create(
+    #        model=model_id, messages=messages, **kwargs
+    #    )
+    #    response_text = response.choices[0].message.content
 
     if console is not None:
-        console.print(Panel(response, title="Response"))
+        console.print(Panel(response_text, title="Response"))
 
-    return response
+    return response_text
 
 
 extraction_system_prompt = "You are an entity extractor"
@@ -97,7 +111,8 @@ def extract_to_pydantic_model(
         extraction_system_prompt,
         extraction_template.format(text=text),
         response_format={
-            "type": "json_object",
+            "type": "json_schema",
+            "strict": True,
             "schema": clazz.model_json_schema(),
         },
         console=console,

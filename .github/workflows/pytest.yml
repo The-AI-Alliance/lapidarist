@@ -32,6 +32,7 @@ jobs:
     - name: Run tests
       env:  
         LLAMA_API_KEY: ${{ secrets.LLAMA_API_KEY }}
+        TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
         HF_TOKEN: ${{ secrets.HF_TOKEN }}
         NEO4J_URI: ${{ secrets.NEO4J_URI }}
         NEO4J_USER: ${{ secrets.NEO4J_USER }}

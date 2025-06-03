@@ -6,6 +6,7 @@ from langchain_core.documents import Document
 from rich.panel import Panel
 from rich.progress import Progress
 from aisuite import Client as AISuiteClient
+from llama_api_client import LlamaAPIClient
 from pydantic import BaseModel, Field
 
 
@@ -19,6 +20,13 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 logging.getLogger("lapidarist").setLevel(logging.INFO)
 
+console = Console()
+
+hf_dataset_ids = ["stanfordnlp/imdb"]
+hf_dataset_column = "text"
+docs_per_dataset = 10
+json_enrichment_file = "test-enrichments.json"
+
 aisuite_client = AISuiteClient(
     provider_configs={
         "ollama": {
@@ -31,15 +39,17 @@ aisuite_client = AISuiteClient(
     }
 )
 
+llama_api_client = LlamaAPIClient(
+    api_key=os.environ.get("LLAMA_API_KEY"),
+    base_url="https://api.llama.com/v1/",
+)
 
-console = Console()
+# chat_completion_client = llama_api_client
+chat_completion_client = aisuite_client
 
-hf_dataset_ids = ["stanfordnlp/imdb"]
-hf_dataset_column = "text"
-docs_per_dataset = 10
-json_enrichment_file = "test-enrichments.json"
-
-extraction_model_id = "openai:Llama-4-Maverick-17B-128E-Instruct-FP8"
+# extraction_model_id = "openai:Llama-4-Maverick-17B-128E-Instruct-FP8"
+extraction_model_id = "together:meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
+# extraction_model_id = "llama:Llama-4-Maverick-17B-128E-Instruct-FP8"
 
 
 def doc_as_rich(doc: Document) -> Panel:
@@ -143,7 +153,7 @@ def test_enrich():
 
     extract_from_doc_chunks = make_extract_from_document_chunks(
         doc_as_rich,
-        aisuite_client,
+        chat_completion_client,
         extraction_model_id,
         chunk_extraction_template,
         TestDocumentChunkExtractions,
