@@ -1,5 +1,4 @@
 from typing import List
-from typing import Callable
 from typing import Optional
 
 import os
@@ -84,16 +83,6 @@ def retrieve_documents(
             docs.append(doc)
 
     return docs
-
-
-def retriever(
-    hf_dataset_ids: list[str], hf_dataset_column: str, docs_per_dataset: int
-) -> Callable[[], List[Document]]:
-
-    def retrieve_documents_fn() -> List[Document]:
-        return retrieve_documents(hf_dataset_ids, hf_dataset_column, docs_per_dataset)
-
-    return retrieve_documents_fn
 
 
 def retrieve_document(

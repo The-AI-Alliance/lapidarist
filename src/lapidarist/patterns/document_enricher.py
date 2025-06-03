@@ -4,11 +4,11 @@ from typing import Optional
 
 import time
 import logging
+from aisuite import Client as AISuiteClient
 from pydantic import BaseModel
 
 from rich.panel import Panel
 from rich.console import Console
-from rich.progress import Progress
 
 from langchain_core.documents.base import Document
 
@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 def extract_from_document_chunks(
     doc: Document,
     doc_as_rich: Callable[[Document], Panel],
+    aisuite_client: AISuiteClient,
     chunk_extraction_model_id: str,
     chunk_extraction_template: str,
     chunk_extract_clazz: type[BaseModel],
@@ -38,6 +39,7 @@ def extract_from_document_chunks(
     for i, chunk in enumerate(chunks):
 
         ce = extract_to_pydantic_model(
+            aisuite_client,
             chunk_extraction_model_id,
             chunk_extraction_template,
             chunk_extract_clazz,
@@ -56,6 +58,7 @@ def extract_from_document_chunks(
 
 def make_extract_from_document_chunks(
     doc_as_rich: Callable[[Document], Panel],
+    aisuite_client: AISuiteClient,
     chunk_extraction_model_id: str,
     chunk_extraction_template: str,
     chunk_extract_clazz: type[BaseModel],
@@ -68,6 +71,7 @@ def make_extract_from_document_chunks(
         chunk_extract_models = extract_from_document_chunks(
             doc,
             doc_as_rich,
+            aisuite_client,
             chunk_extraction_model_id,
             chunk_extraction_template,
             chunk_extract_clazz,
@@ -80,31 +84,12 @@ def make_extract_from_document_chunks(
     return fn
 
 
-def enrich_documents(
-    retrieve_documents: Callable[[], List[Document]],
+def enrich_document(
+    doc: Document,
     extract_from_doc_chunks: Callable[[Document], List[BaseModel]],
     doc_enrichments: Callable[[Document, list[BaseModel]], BaseModel],
-    enrichments_jsonl_file: str,
-    console: Optional[Console] = None,
-) -> None:
-
-    docs = retrieve_documents()
-
-    with Progress() as progress:
-
-        task_enrich = progress.add_task(
-            "[green]Enriching documents...", total=len(docs)
-        )
-
-        with open(enrichments_jsonl_file, "wt") as f:
-
-            for doc in docs:
-
-                chunk_extract_models = extract_from_doc_chunks(doc)
-                enrichments = doc_enrichments(doc, chunk_extract_models)
-                enrichments_json = enrichments.model_dump_json()
-                f.write(enrichments_json + "\n")
-
-                progress.update(task_enrich, advance=1)
-
-        log.info("Wrote document enrichments to %s", enrichments_jsonl_file)
+) -> dict:
+    chunk_extract_models = extract_from_doc_chunks(doc)
+    enrichments = doc_enrichments(doc, chunk_extract_models)
+    enrichments_json = enrichments.model_dump_json()
+    return enrichments_json

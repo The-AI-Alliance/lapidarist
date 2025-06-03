@@ -1,20 +1,36 @@
 import logging
+import os
 from pathlib import Path
 from rich.console import Console
 from langchain_core.documents import Document
 from rich.panel import Panel
+from rich.progress import Progress
+from aisuite import Client as AISuiteClient
 from pydantic import BaseModel, Field
 
+
 from lapidarist.verbs.read import retrieve_documents
-from lapidarist.verbs.read import retriever
 from lapidarist.verbs.extract import raw_extraction_template
 from lapidarist.verbs.extract import partial_formatter
-from lapidarist.patterns.document_enricher import enrich_documents
+from lapidarist.patterns.document_enricher import enrich_document
 from lapidarist.patterns.document_enricher import make_extract_from_document_chunks
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 logging.getLogger("lapidarist").setLevel(logging.INFO)
+
+aisuite_client = AISuiteClient(
+    provider_configs={
+        "ollama": {
+            "timeout": 180,
+        },
+        "openai": {  # Use OpenAI protocol for Llama API access
+            "api_key": os.environ.get("LLAMA_API_KEY"),
+            "base_url": "https://api.llama.com/compat/v1/",
+        },
+    }
+)
+
 
 console = Console()
 
@@ -93,8 +109,6 @@ def doc_enrichments(
 
     logging.info(doc.metadata)
 
-    print("MAKING ENRICHMENTS", georefs, movierefs)
-
     enrichments = TestDocumentEnrichments(
         label=doc.metadata["label"],
         georefs=georefs,
@@ -121,8 +135,15 @@ def test_retrieve():
 
 def test_enrich():
 
+    docs = retrieve_documents(
+        hf_dataset_ids=hf_dataset_ids,
+        hf_dataset_column="text",
+        docs_per_dataset=docs_per_dataset,
+    )
+
     extract_from_doc_chunks = make_extract_from_document_chunks(
         doc_as_rich,
+        aisuite_client,
         extraction_model_id,
         chunk_extraction_template,
         TestDocumentChunkExtractions,
@@ -130,13 +151,24 @@ def test_enrich():
         console=console,
     )
 
-    enrich_documents(
-        retriever(hf_dataset_ids, hf_dataset_column, docs_per_dataset),
-        extract_from_doc_chunks,
-        doc_enrichments,
-        json_enrichment_file,
-        console=console,
-    )
+    with Progress() as progress:
+
+        task_enrich = progress.add_task(
+            "[green]Enriching documents...", total=len(docs)
+        )
+
+        with open(json_enrichment_file, "wt") as f:
+
+            for doc in docs:
+
+                enrichments_json = enrich_document(
+                    doc, extract_from_doc_chunks, doc_enrichments
+                )
+                f.write(enrichments_json + "\n")
+
+                progress.update(task_enrich, advance=1)
+
+        log.info("Wrote document enrichments to %s", json_enrichment_file)
 
     assert Path(
         json_enrichment_file

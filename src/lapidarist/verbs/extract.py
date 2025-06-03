@@ -8,20 +8,13 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 from pydantic import BaseModel
-from aisuite import Client
+from aisuite import Client as AISuiteClient
 
 log = logging.getLogger(__name__)
 
-provider_configs = {
-    # TODO expose this
-    "ollama": {"timeout": 180},
-}
-
-client = Client(provider_configs=provider_configs)
-
 
 def complete_simple(
-    model_id: str, system_prompt: str, user_prompt: str, **kwargs
+    client: AISuiteClient, model_id: str, system_prompt: str, user_prompt: str, **kwargs
 ) -> str:
 
     console = kwargs.pop("console", None)
@@ -90,6 +83,7 @@ Only answer in JSON.:
 
 
 def extract_to_pydantic_model(
+    aisuite_client: AISuiteClient,
     extraction_model_id: str,
     extraction_template: str,
     clazz: type[BaseModel],
@@ -98,6 +92,7 @@ def extract_to_pydantic_model(
 ) -> BaseModel:
 
     extract_str = complete_simple(
+        aisuite_client,
         extraction_model_id,
         extraction_system_prompt,
         extraction_template.format(text=text),
