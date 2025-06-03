@@ -32,6 +32,7 @@ test = [
   "typer>=0.15.2",
   "click>=8.2.0",
   "pytest>=8.3.5",
+  "llama_api_client>=0.1.1",
   "neo4j>=5.28.1",
   "gofannon>=0.25.13",
   "lapidarist>=0.0.1"
