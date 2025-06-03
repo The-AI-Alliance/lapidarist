@@ -32,6 +32,9 @@ aisuite_client = AISuiteClient(
         "ollama": {
             "timeout": 180,
         },
+        "together": {
+            "timeout": 180,
+        },
         "openai": {  # Use OpenAI protocol for Llama API access
             "api_key": os.environ.get("LLAMA_API_KEY"),
             "base_url": "https://api.llama.com/compat/v1/",
