@@ -39,7 +39,7 @@ hf_dataset_column = "text"
 docs_per_dataset = 10
 json_enrichment_file = "test-enrichments.json"
 
-extraction_model_id = "together:meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
+extraction_model_id = "openai:Llama-4-Maverick-17B-128E-Instruct-FP8"
 
 
 def doc_as_rich(doc: Document) -> Panel:
