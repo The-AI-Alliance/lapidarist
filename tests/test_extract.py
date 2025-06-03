@@ -157,7 +157,7 @@ def test_enrich():
         extraction_model_id,
         chunk_extraction_template,
         TestDocumentChunkExtractions,
-        delay=2.0,
+        delay=5.0,
         console=console,
     )
 
