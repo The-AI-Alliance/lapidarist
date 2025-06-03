@@ -24,7 +24,7 @@ console = Console()
 
 hf_dataset_ids = ["stanfordnlp/imdb"]
 hf_dataset_column = "text"
-docs_per_dataset = 10
+docs_per_dataset = 5
 json_enrichment_file = "test-enrichments.json"
 
 aisuite_client = AISuiteClient(
