@@ -24,6 +24,10 @@ dependencies = [
   "langchain-huggingface>=0.1.2"
 ]
 
+[dependency-groups]
+unit = [
+]
+
 [project.optional-dependencies]
 test = [
   "pytest>=8,<9",
