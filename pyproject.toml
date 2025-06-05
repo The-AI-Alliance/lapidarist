@@ -27,6 +27,8 @@ dependencies = [
 [dependency-groups]
 unit = [
 ]
+integration = [
+]
 
 [project.optional-dependencies]
 test = [
