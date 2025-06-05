@@ -1,4 +1,4 @@
-name: Run Python Tests
+name: Unit Tests
 
 on:
   workflow_dispatch:
@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ "main" ]
     types: [opened, synchronize, reopened]
+    paths:
+      - 'src/**'
+      - 'tests/unit/**'
+      - 'pyproject.toml'
+      - '.github/workflows/unit-tests.yml' # This workflow
 
   push:
     branches: [ "main" ]
