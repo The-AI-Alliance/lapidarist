@@ -21,20 +21,6 @@ from lapidarist.entity_resolver import Resolver
 from lapidarist.knowledge_graph import RelationLabel as lapidarist_RelationLabel
 from lapidarist.knowledge_graph import Reference
 
-movie_resolver = Resolver(
-    "MATCH (mr:MovieRef) RETURN mr.text AS text",
-    "text",
-    "resolve_movierefs",
-)
-
-geo_resolver = Resolver(
-    "MATCH (gr:GeoRef) RETURN gr.text AS text",
-    "text",
-    "resolve_georefs",
-)
-
-resolvers = [movie_resolver, geo_resolver]
-
 hf_dataset_ids = ["stanfordnlp/imdb"]
 hf_dataset_column = "text"
 
@@ -197,3 +183,18 @@ def doc_enrichments_to_graph(enrichments: ReviewEnrichments) -> None:
 
     for georef in enrichments.georefs:
         review_node.geo_mentions.connect(GeoReference(text=georef).save())
+
+
+movie_resolver = Resolver(
+    "MATCH (mr:MovieRef) RETURN mr.text AS text",
+    "text",
+    "resolve_movierefs",
+)
+
+geo_resolver = Resolver(
+    "MATCH (gr:GeoRef) RETURN gr.text AS text",
+    "text",
+    "resolve_georefs",
+)
+
+resolvers = [movie_resolver, geo_resolver]

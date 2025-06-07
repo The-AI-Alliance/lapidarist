@@ -20,12 +20,12 @@ from movie_demo import (
     hf_dataset_ids,
     hf_dataset_column,
     doc_as_rich,
+    chunk_extraction_template,
     ReviewChunkExtractions,
     ReviewEnrichments,
-    resolvers,
     doc_enrichments,
-    chunk_extraction_template,
     doc_enrichments_to_graph,
+    resolvers,
 )
 
 log = logging.getLogger(__name__)
