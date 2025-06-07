@@ -1,10 +1,7 @@
 import logging
-import os
 from langchain_core.documents import Document
 from rich.panel import Panel
 from enum import StrEnum
-from aisuite import Client as AISuiteClient
-from llama_api_client import LlamaAPIClient
 from pydantic import BaseModel, Field
 
 from neomodel import (
@@ -40,42 +37,6 @@ resolvers = [movie_resolver, geo_resolver]
 
 hf_dataset_ids = ["stanfordnlp/imdb"]
 hf_dataset_column = "text"
-docs_per_dataset = 5
-json_enrichment_file = "test-enrichments.json"
-
-aisuite_client = AISuiteClient(
-    provider_configs={
-        "ollama": {
-            "timeout": 180,
-        },
-        "together": {
-            "timeout": 180,
-        },
-        # "openai": {  # Use OpenAI protocol for Llama API access
-        #    "api_key": os.environ.get("LLAMA_API_KEY"),
-        #    "base_url": "https://api.llama.com/compat/v1/",
-        # },
-    }
-)
-
-llama_api_client = LlamaAPIClient(
-    api_key=os.environ.get("LLAMA_API_KEY"),
-    base_url="https://api.llama.com/v1/",
-)
-
-# chat_completion_client = llama_api_client
-chat_completion_client = aisuite_client
-
-# extraction_model_id = "openai:Llama-4-Maverick-17B-128E-Instruct-FP8"
-extraction_model_id = "together:meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
-# extraction_model_id = "llama:Llama-4-Maverick-17B-128E-Instruct-FP8"
-
-embedding_model_id = "all-MiniLM-L6-v2"
-milvus_uri = "file:/bartlebot-milvus.db"
-
-neo4j_uri = os.environ.get("NEO4J_URI")
-neo4j_password = os.environ.get("NEO4J_PASSWORD")
-neo4j_username = os.environ.get("NEO4J_USERNAME")
 
 
 def doc_as_rich(doc: Document) -> Panel:
