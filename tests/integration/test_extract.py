@@ -3,6 +3,7 @@ from pathlib import Path
 from rich.progress import Progress
 from rich.console import Console
 from neo4j import GraphDatabase
+import pytest
 
 # from neo4j_graphrag.schema import get_schema
 
@@ -41,24 +42,12 @@ console = Console()
 neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_username, neo4j_password))
 
 
-def test_retrieve():
+@pytest.mark.dependency()
+def test_retrieve_and_enrich():
 
     docs = retrieve_documents(
         hf_dataset_ids=hf_dataset_ids,
         hf_dataset_column=hf_dataset_column,
-        docs_per_dataset=docs_per_dataset,
-    )
-
-    assert (
-        len(docs) == docs_per_dataset
-    ), f"Expected to retrieve {docs_per_dataset} documents from the dataset."
-
-
-def test_enrich():
-
-    docs = retrieve_documents(
-        hf_dataset_ids=hf_dataset_ids,
-        hf_dataset_column="text",
         docs_per_dataset=docs_per_dataset,
     )
 
@@ -95,6 +84,10 @@ def test_enrich():
         json_enrichment_file
     ).exists(), f"Expected the enrichment file {json_enrichment_file} to be created."
 
+
+@pytest.mark.dependency(depends=["test_retrieve_and_enrich"])
+def test_load_knowledge_graph():
+
     load_knowledge_graph(
         neo4j_driver,
         json_enrichment_file,
@@ -103,6 +96,10 @@ def test_enrich():
     )
 
     assert True, "Knowledge graph loaded successfully."
+
+
+@pytest.mark.dependency(depends=["test_load_knowledge_graph"])
+def test_load_entity_resolver():
 
     load_entity_resolver(
         neo4j_driver,

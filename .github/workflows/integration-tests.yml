@@ -42,7 +42,7 @@ jobs:
         uv venv
         source .venv/bin/activate
         uv pip install ".[test]"
-        uv pip install pytest
+        uv pip install pytest pytest-dependency
 
     - name: Run tests
       env:  
